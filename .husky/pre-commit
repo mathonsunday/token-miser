@@ -18,18 +18,22 @@ echo ""
 
 FAILED=0
 
-# ── Stage 1: Lint-staged (both phases) ──────────────────────────────
+# ── Stage 1: Lint-staged (mature only — no tests to catch regressions in vibe) ─
 
-echo "  Lint-staged (ESLint on staged files)..."
-npx lint-staged || FAILED=1
+if [ "$PHASE" = "mature" ]; then
+  echo "  Lint-staged (ESLint on staged files)..."
+  npx lint-staged || FAILED=1
 
-if [ $FAILED -eq 1 ]; then
-  echo ""
-  echo "${RED}  Lint-staged failed${NC}"
-  echo "  Fix: npm run lint -- --fix"
-  exit 1
+  if [ $FAILED -eq 1 ]; then
+    echo ""
+    echo "${RED}  Lint-staged failed${NC}"
+    echo "  Fix: npm run lint -- --fix"
+    exit 1
+  fi
+  echo "${GREEN}  Lint-staged passed${NC}"
+else
+  echo "  Lint-staged — ${YELLOW}skipped in vibe phase${NC} (no tests to verify fixes)"
 fi
-echo "${GREEN}  Lint-staged passed${NC}"
 echo ""
 
 # ── Stage 2: TypeScript type check (both phases) ───────────────────

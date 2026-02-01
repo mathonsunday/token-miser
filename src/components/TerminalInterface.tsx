@@ -10,7 +10,7 @@ import './TerminalInterface.css';
 
 interface TerminalLine {
   id: string;
-  type: 'user' | 'assistant' | 'system' | 'cost' | 'bankruptcy';
+  type: 'user' | 'assistant' | 'system' | 'cost' | 'bankruptcy' | 'web-search';
   content: string;
   costData?: {
     inputTokens: number;
@@ -93,6 +93,22 @@ export function TerminalInterface() {
       onResponseChunk: (chunk) => {
         currentResponseRef.current += chunk;
         updateCurrentLine(currentResponseRef.current);
+      },
+
+      onWebSearchStart: (query) => {
+        addLine({
+          id: `search_${Date.now()}`,
+          type: 'web-search',
+          content: `[SEARCHING] "${query}"`,
+        });
+      },
+
+      onWebSearchResult: (summary) => {
+        addLine({
+          id: `search_result_${Date.now()}`,
+          type: 'web-search',
+          content: `[FOUND] ${summary}`,
+        });
       },
 
       onBudgetUpdate: (data) => {

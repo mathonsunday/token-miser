@@ -4,6 +4,7 @@ export interface MessageCost {
   outputTokens: number;
   cacheCreationTokens: number;
   cacheReadTokens: number;
+  webSearchCount: number;
   timestamp: number;
   userInputPreview: string;
 }
@@ -16,12 +17,14 @@ export interface BudgetInfo {
   totalCacheReadTokens: number;
   toolCallCount: number;
   maxToolCalls: number;
+  webSearchCount: number;
+  maxWebSearches: number;
   messageHistory: MessageCost[];
 }
 
 export interface ConversationMessage {
   role: 'user' | 'assistant';
-  content: string;
+  content: string | unknown[];
   timestamp: number;
 }
 
@@ -42,5 +45,7 @@ export const DEFAULT_BUDGET: BudgetInfo = {
   totalCacheReadTokens: 0,
   toolCallCount: 0,
   maxToolCalls: 15,
+  webSearchCount: 0,
+  maxWebSearches: 10,
   messageHistory: [],
 };

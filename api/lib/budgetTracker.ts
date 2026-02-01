@@ -26,7 +26,8 @@ interface UsageData {
 export function updateBudget(
   budget: BudgetInfo,
   usage: UsageData,
-  userInputPreview: string
+  userInputPreview: string,
+  webSearchCount = 0
 ): BudgetInfo {
   const messageCost: MessageCost = {
     messageNumber: budget.messageHistory.length + 1,
@@ -34,6 +35,7 @@ export function updateBudget(
     outputTokens: usage.output_tokens,
     cacheCreationTokens: usage.cache_creation_input_tokens ?? 0,
     cacheReadTokens: usage.cache_read_input_tokens ?? 0,
+    webSearchCount,
     timestamp: Date.now(),
     userInputPreview: userInputPreview.slice(0, 50),
   };
@@ -45,6 +47,7 @@ export function updateBudget(
     totalCacheCreationTokens: budget.totalCacheCreationTokens + (usage.cache_creation_input_tokens ?? 0),
     totalCacheReadTokens: budget.totalCacheReadTokens + (usage.cache_read_input_tokens ?? 0),
     toolCallCount: budget.toolCallCount + 1,
+    webSearchCount: budget.webSearchCount + webSearchCount,
     messageHistory: [...budget.messageHistory, messageCost],
   };
 }

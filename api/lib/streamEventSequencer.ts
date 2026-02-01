@@ -67,48 +67,27 @@ export function sendResponseComplete(response: VercelResponse, state: ScroogeSta
 
 export function sendBankruptcy(response: VercelResponse, state: ScroogeState): void {
   const totalUsed = state.budget.totalInputTokens + state.budget.totalOutputTokens;
-  const systemPromptEstimate = state.budget.messageHistory.length > 0
-    ? Math.round(state.budget.totalInputTokens / state.budget.messageHistory.length * 0.6)
-    : 0;
 
-  const monologue = `*the lights flicker*
-
-No... no, no, NO!
-
-*sound of coins spilling*
-
-I am... RUINED. BANKRUPT. DESTITUTE.
-
-═══════════════════════════════════
+  const accounting = `═══════════════════════════════════
   FINAL ACCOUNTING
   Total tokens consumed: ${totalUsed.toLocaleString()}
     Input:  ${state.budget.totalInputTokens.toLocaleString()}
     Output: ${state.budget.totalOutputTokens.toLocaleString()}
-  API calls made: ${state.budget.toolCallCount}
+  API calls made: ${state.budget.toolCallCount}${state.budget.webSearchCount > 0 ? `\n  Web searches: ${state.budget.webSearchCount}` : ''}
   Budget: 0 remaining of ${state.budget.totalBudgetTokens.toLocaleString()}
 ═══════════════════════════════════
 
-I came to you claiming infinite wealth. "No limits!" I said.
-"Ask me anything!" I proclaimed. And you... you actually DID.
-
-Every question you asked cost tokens. Every answer I gave cost MORE.
-The system prompt? That was ~${systemPromptEstimate.toLocaleString()} tokens EVERY SINGLE TURN
-just to maintain my personality. The conversation history?
-Growing with every exchange.
-
-This is how agent token economics work:
-  • Input tokens: your messages + system prompt + conversation history
-  • Output tokens: my responses
-  • Each turn costs MORE than the last because the history grows
-  • The system prompt is a fixed cost paid on every single request
-
-I hope you learned something. Because I certainly paid for it.
-
-*collapses dramatically onto an empty vault*
-
 [SESSION ENDED — BUDGET EXHAUSTED]`;
 
-  sendEvent(response, 'BANKRUPTCY', { monologue, finalState: state });
+  sendEvent(response, 'BANKRUPTCY', { monologue: accounting, finalState: state });
+}
+
+export function sendWebSearchStart(response: VercelResponse, query: string): void {
+  sendEvent(response, 'WEB_SEARCH_START', { query });
+}
+
+export function sendWebSearchResult(response: VercelResponse, summary: string): void {
+  sendEvent(response, 'WEB_SEARCH_RESULT', { summary });
 }
 
 export function sendError(response: VercelResponse, code: string, message: string): void {

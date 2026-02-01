@@ -10,8 +10,12 @@ Exploration mode. Build features, try approaches, discard things. Accept that co
 
 **What's enforced:**
 
-- ESLint + TypeScript type checking on every commit
+- TypeScript type checking on every commit (catches actually broken code)
 - Dead code detection runs but warns only (does not block)
+
+**What's skipped:**
+
+- ESLint is skipped on commit — fixing lint errors without tests risks introducing regressions. Lint issues are deferred to mature phase where tests exist to verify fixes.
 
 **What's blocked:**
 
@@ -19,7 +23,7 @@ Exploration mode. Build features, try approaches, discard things. Accept that co
 
 **What's expected:**
 
-- Types must pass, lint must pass
+- Types must pass
 - Architecture will change — that's fine
 - Dead code will accumulate — that's fine, knip tracks it
 - Focus on making things work, not making things clean

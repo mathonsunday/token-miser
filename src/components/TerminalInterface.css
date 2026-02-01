@@ -44,6 +44,13 @@
   animation: fadeIn 0.5s ease-in;
 }
 
+.terminal__line--web-search {
+  color: var(--text-dim);
+  font-style: italic;
+  border-left: 2px solid var(--accent-gold);
+  padding-left: 0.5rem;
+}
+
 .terminal__prefix {
   color: var(--accent-gold);
   font-weight: bold;

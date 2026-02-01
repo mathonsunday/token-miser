@@ -22,6 +22,8 @@ interface BudgetUpdateData {
 export interface StreamCallbacks {
   onMessageStart?: (messageId: string) => void;
   onResponseChunk?: (chunk: string) => void;
+  onWebSearchStart?: (query: string) => void;
+  onWebSearchResult?: (summary: string) => void;
   onBudgetUpdate?: (data: BudgetUpdateData) => void;
   onComplete?: (data: { updatedState: ScroogeState }) => void;
   onBankruptcy?: (data: { monologue: string; finalState: ScroogeState }) => void;
@@ -77,6 +79,12 @@ function handleEvent(envelope: EventEnvelope, callbacks: StreamCallbacks): void 
       callbacks.onResponseChunk?.(data.chunk as string);
       break;
     case 'TEXT_MESSAGE_END':
+      break;
+    case 'WEB_SEARCH_START':
+      callbacks.onWebSearchStart?.(data.query as string);
+      break;
+    case 'WEB_SEARCH_RESULT':
+      callbacks.onWebSearchResult?.(data.summary as string);
       break;
     case 'BUDGET_UPDATE':
       callbacks.onBudgetUpdate?.(data as unknown as BudgetUpdateData);
