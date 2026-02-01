@@ -1,0 +1,6 @@
+{
+  "entry": ["src/main.tsx", "api/chat-stream.ts"],
+  "project": ["src/**/*.{ts,tsx}", "api/**/*.ts"],
+  "ignore": ["dist/**", "node_modules/**"],
+  "ignoreBinaries": ["semgrep"]
+}

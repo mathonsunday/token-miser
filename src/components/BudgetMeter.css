@@ -1,0 +1,28 @@
+.budget-meter {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--text-dim);
+  font-size: clamp(11px, 1.1vw, 13px);
+  flex-shrink: 0;
+}
+
+.budget-meter__header {
+  margin-bottom: 0.25rem;
+}
+
+.budget-meter__label {
+  font-weight: bold;
+  letter-spacing: 1px;
+  font-size: clamp(10px, 1vw, 12px);
+}
+
+.budget-meter__bar {
+  font-family: var(--font-mono);
+  margin-bottom: 0.25rem;
+}
+
+.budget-meter__stats {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-dim);
+  font-size: clamp(10px, 1vw, 11px);
+}

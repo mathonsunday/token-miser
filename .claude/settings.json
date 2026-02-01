@@ -1,0 +1,36 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PHASE=$(cat .claude/phase 2>/dev/null | tr -d '\\n' || echo 'vibe'); FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | grep -o '\"file_path\":\\s*\"[^\"]*\"' | head -1 | sed 's/\"file_path\":\\s*\"//;s/\"$//'); if [ \"$PHASE\" = \"vibe\" ] && echo \"$FILE\" | grep -qE '\\.(test|spec)\\.(ts|tsx|js|jsx)$|/__tests__/'; then echo 'Test creation is blocked during vibe phase. Run /mature when the architecture is stable and you are ready to add tests.' >&2; exit 2; fi; exit 0"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PHASE=$(cat .claude/phase 2>/dev/null | tr -d '\\n' || echo 'vibe'); if [ \"$PHASE\" != \"vibe\" ]; then exit 0; fi; PROMPT=$(echo \"$CLAUDE_USER_PROMPT\" | tr '[:upper:]' '[:lower:]'); if echo \"$PROMPT\" | grep -qE '(broke|broken|regression|was working|used to work|revert|undo|rollback|broke .* feature|stopped working|no longer works|it worked before)'; then echo '[maturation signal] You mentioned a regression or something that was working before. This often means you have stable behavior worth protecting with tests. Consider running /mature to transition to the mature development phase.' >&2; fi; exit 0"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PHASE=$(cat .claude/phase 2>/dev/null | tr -d '\\n' || echo 'vibe'); if [ \"$PHASE\" != \"vibe\" ]; then exit 0; fi; CMD=$(echo \"$CLAUDE_TOOL_INPUT\" | grep -o '\"command\":\\s*\"[^\"]*\"' | head -1 | sed 's/\"command\":\\s*\"//;s/\"$//'); if echo \"$CMD\" | grep -qE '(git (revert|checkout -- |restore )|git reset)'; then COUNTER_FILE=.claude/revert-count; COUNT=$(cat \"$COUNTER_FILE\" 2>/dev/null || echo 0); COUNT=$((COUNT + 1)); echo \"$COUNT\" > \"$COUNTER_FILE\"; if [ \"$COUNT\" -ge 2 ]; then echo '[maturation signal] Multiple reverts detected in this project. This suggests you have working behavior you want to preserve. Consider running /mature to add tests and prevent regressions.' >&2; echo 0 > \"$COUNTER_FILE\"; fi; fi; exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,101 @@
+#!/bin/sh
+
+# Phase-aware pre-commit hook
+# Reads .claude/phase to determine enforcement level
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+PHASE=$(cat .claude/phase 2>/dev/null | tr -d '\n' || echo "vibe")
+
+echo ""
+echo "════════════════════════════════════════════════════════════════"
+echo "  PRE-COMMIT CHECKS  [phase: ${PHASE}]"
+echo "════════════════════════════════════════════════════════════════"
+echo ""
+
+FAILED=0
+
+# ── Stage 1: Lint-staged (both phases) ──────────────────────────────
+
+echo "  Lint-staged (ESLint on staged files)..."
+npx lint-staged || FAILED=1
+
+if [ $FAILED -eq 1 ]; then
+  echo ""
+  echo "${RED}  Lint-staged failed${NC}"
+  echo "  Fix: npm run lint -- --fix"
+  exit 1
+fi
+echo "${GREEN}  Lint-staged passed${NC}"
+echo ""
+
+# ── Stage 2: TypeScript type check (both phases) ───────────────────
+
+echo "  TypeScript type check..."
+npm run type-check || FAILED=1
+
+if [ $FAILED -eq 1 ]; then
+  echo ""
+  echo "${RED}  Type check failed${NC}"
+  echo "  Fix: npm run type-check"
+  exit 1
+fi
+echo "${GREEN}  Type check passed${NC}"
+echo ""
+
+# ── Stage 3: Dead code detection (both phases, different severity) ─
+
+echo "  Dead code detection (knip)..."
+if [ "$PHASE" = "mature" ]; then
+  npm run dead-code || FAILED=1
+  if [ $FAILED -eq 1 ]; then
+    echo ""
+    echo "${RED}  Dead code detected — blocked in mature phase${NC}"
+    echo "  Fix: npm run dead-code        (review issues)"
+    echo "       npm run dead-code:fix    (auto-fix simple cases)"
+    exit 1
+  fi
+  echo "${GREEN}  Dead code check passed${NC}"
+else
+  npm run dead-code 2>&1 || true
+  echo "${YELLOW}  Dead code check ran (warnings only in vibe phase)${NC}"
+fi
+echo ""
+
+# ── Mature-only stages ─────────────────────────────────────────────
+
+if [ "$PHASE" = "mature" ]; then
+
+  # Stage 4: Security scan
+  echo "  Security scan (semgrep)..."
+  npm run security || FAILED=1
+  if [ $FAILED -eq 1 ]; then
+    echo ""
+    echo "${RED}  Security scan failed${NC}"
+    echo "  Fix: npm run security"
+    exit 1
+  fi
+  echo "${GREEN}  Security scan passed${NC}"
+  echo ""
+
+  # Stage 5: Tests
+  echo "  Running tests..."
+  npm test -- --run || FAILED=1
+  if [ $FAILED -eq 1 ]; then
+    echo ""
+    echo "${RED}  Tests failed${NC}"
+    echo "  Fix: npm test"
+    exit 1
+  fi
+  echo "${GREEN}  Tests passed${NC}"
+  echo ""
+
+fi
+
+echo "════════════════════════════════════════════════════════════════"
+echo "${GREEN}  All pre-commit checks passed! [${PHASE}]${NC}"
+echo "════════════════════════════════════════════════════════════════"
+echo ""

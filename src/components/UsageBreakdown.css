@@ -1,0 +1,12 @@
+.usage-breakdown {
+  padding: 0.25rem 1rem;
+  font-size: clamp(10px, 1vw, 11px);
+  color: var(--text-dim);
+  border-left: 2px solid rgba(232, 213, 163, 0.1);
+  margin: 0.25rem 0 0.5rem 1rem;
+}
+
+.usage-breakdown__line {
+  font-family: var(--font-mono);
+  line-height: 1.6;
+}
